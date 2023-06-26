@@ -1,6 +1,6 @@
 <script setup>
 import { storeToRefs } from 'pinia';
-import { computed } from 'vue';
+import { computed, onUnmounted } from 'vue';
 import UsersTable from '@/components/UsersTable.vue';
 import { useUsersStore } from '@/stores/users';
 import SearchBar from '@/components/inputs/SearchBar.vue';
@@ -8,6 +8,7 @@ import SearchBar from '@/components/inputs/SearchBar.vue';
 const usersStore = useUsersStore();
 
 const { getUsers, getEditMode } = storeToRefs(usersStore);
+const { filterStoreUsers } = usersStore;
 
 const users = computed(() => getUsers.value);
 
@@ -45,12 +46,14 @@ const headers = [
     align: 'center',
   },
 ];
+
+onUnmounted(() => {
+  filterStoreUsers('');
+});
 </script>
 
 <template>
-  <SearchBar
-    :users="users"
-  />
+  <SearchBar />
   <UsersTable
     :users="users"
     :edit-mode="editMode"

@@ -12,7 +12,7 @@ const itemsPerPageOptions = [
   { value: -1, title: '$vuetify.dataFooter.itemsPerPageAll' },
 ];
 
-const { removeStoreUser } = usersStore;
+const { removeStoreUser, filterStoreUsers } = usersStore;
 
 const propsList = defineProps({
   users: {
@@ -45,7 +45,7 @@ const removeUser = (userId) => {
   <div>
     <template v-if="users.length === 0">
       <p class="no-users">
-        There are no users
+        Пусто
       </p>
     </template>
     <template v-else>

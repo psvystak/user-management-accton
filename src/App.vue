@@ -1,5 +1,7 @@
 <script setup>
-import { onMounted, ref, watch } from 'vue';
+import {
+  onMounted, ref, watch,
+} from 'vue';
 import { useRoute } from 'vue-router';
 import EditModeSwitcher from './components/buttons/EditModeSwitcherButton.vue';
 import GoBackButton from './components/buttons/GoBackButton.vue';
@@ -7,7 +9,7 @@ import GoBackButton from './components/buttons/GoBackButton.vue';
 import { useUsersStore } from './stores/users.js';
 
 const usersStore = useUsersStore();
-const { setStoreUsers } = usersStore;
+const { setStoreUsers, filterStoreUsers } = usersStore;
 
 const route = useRoute();
 const routeName = ref(route.name);

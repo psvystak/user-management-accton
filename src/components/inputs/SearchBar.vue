@@ -5,13 +5,6 @@ import { useUsersStore } from '@/stores/users.js';
 const usersStore = useUsersStore();
 const { filterStoreUsers } = usersStore;
 
-const props = defineProps({
-  users: {
-    type: Array,
-    required: true,
-  },
-});
-
 const searchValue = ref('');
 
 const searchUser = () => {

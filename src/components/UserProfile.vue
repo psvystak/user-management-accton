@@ -1,15 +1,15 @@
 <script setup>
 import {
-  computed, ref, reactive, watch, watchEffect,
+  computed, ref, reactive, watch,
 } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useRoute } from 'vue-router';
 import { useUsersStore } from '@/stores/users';
-import { copyObject } from '../utils/composable/copyObject';
+import { copyObject } from '@/utils/composable/copyObject';
+import HeadComponent from '@/components/inputs/HeadComponent.vue';
 
 const route = useRoute();
 const save = ref(false);
-const userId = ref(route.params.id);
 
 const propsList = defineProps({
   id: {
@@ -21,6 +21,8 @@ const propsList = defineProps({
 const usersStore = useUsersStore();
 const { getUsers, getEditMode } = storeToRefs(usersStore);
 const { toggleStoreEditMode, updateStoreUser } = usersStore;
+
+const users = computed(() => getUsers.value);
 
 const user = computed(() => getUsers.value.find((user) => user.id === propsList.id));
 
@@ -41,6 +43,10 @@ const makeStringMask = (event) => {
   }
 };
 
+const updateHeadValue = (value) => {
+  userCopy.head = value;
+};
+
 const avatarValidation = computed(() => [
   (value) => (value.length <= 31 || '999 - це максимум'),
   (value) => {
@@ -50,11 +56,12 @@ const avatarValidation = computed(() => [
 ]);
 
 const nameValidation = computed(() => [
-  (value) => (!!value || 'Поле ім\'я є обов\'язковим для заповнення'),
-  (value) => (!/\d/.test(value) || 'Ім\'я не може містити цифри'),
-  (value) => (!/[^A-Za-zА-Яа-яЁёІіЇї\s]/.test(value) || 'Ім\'я може містити лише літери та пробіли'),
+  (value) => (!!value || "Поле ім'я є обов'язковим для заповнення"),
+  (value) => (!/\d/.test(value) || "Ім'я не може містити цифри"),
+  (value) => (!/[^A-Za-zА-Яа-яЁёІіЇїҐґ\s]/.test(value) || "Ім'я може містити лише літери та пробіли"),
   (value) => (value.length <= 23 || 'Максимальна кілкість символів - 23'),
-  (value) => (!(/^\s+$/.test(value) || /\s\s/.test(value)) || 'Ім\'я не може складатись лише з пробілів або мати два пробіли підряд'),
+  (value) => (!(/^\s+$/.test(value) || /\s\s/.test(value)) || "Ім'я не може складатись лише з пробілів або мати два пробіли підряд"),
+  (value) => (!/[ЫыЁёЪъ]/.test(value) || 'Дякувати Богу, що я не москаль'),
 ]);
 
 const emailValidation = computed(() => [
@@ -68,6 +75,7 @@ watch(() => editMode.value, (oldValue, newValue) => {
     userCopy.name = user.value.name;
     userCopy.email = user.value.email;
     userCopy.department = user.value.department;
+    userCopy.head = user.value.head;
   }
 });
 
@@ -75,7 +83,8 @@ const isFormValid = computed(() => {
   const isFieldChanged = userCopy.avatar !== user.value.avatar
     || userCopy.name !== user.value.name
     || userCopy.email !== user.value.email
-    || userCopy.department !== user.value.department;
+    || userCopy.department !== user.value.department
+    || userCopy.head !== user.value.head;
 
   const avatarErrors = avatarValidation.value.filter((rule) => typeof rule(userCopy.avatar) === 'string');
   const nameErrors = nameValidation.value.filter((rule) => typeof rule(userCopy.name) === 'string');
@@ -84,12 +93,14 @@ const isFormValid = computed(() => {
 
   return (!isFieldChanged || hasValidationErrors);
 });
-function updateUser() {
+
+const updateUser = () => {
+  // тут можна було б звернутися до бекенду і зробити post-запит
   save.value = true;
   updateStoreUser(userCopy);
   toggleStoreEditMode();
   save.value = false;
-}
+};
 
 </script>
 
@@ -149,11 +160,19 @@ function updateUser() {
       />
       <VTextField
         v-model="userCopy.department"
+        :rules="nameValidation"
         :disabled="!editMode"
         hide-details="auto"
         label="Департамент"
         variant="solo"
         class="mb-4"
+      />
+      <HeadComponent
+        :users="users"
+        :current-user-head="userCopy.head"
+        :current-user-id="userCopy.id"
+        :disabled="!editMode"
+        @update:model-value="updateHeadValue"
       />
       <VBtn
         v-if="editMode"
