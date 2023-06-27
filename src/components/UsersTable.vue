@@ -29,10 +29,10 @@ const propsList = defineProps({
   },
 });
 
-const findHeadEmailOfUser = (user) => propsList.users.find((currentUser) => currentUser.id === user?.head)?.email || 'Немає начальника';
+const findHeadEmailOfUser = (user) => propsList.users.find((currentUser) => currentUser.id === user?.head)?.email || 'Начальник не призначений';
 
 const goToUserPersonalPage = (userId) => {
-  router.push(`/users/${userId}`);
+  router.push(`/user/${userId}`);
 };
 
 const removeUser = (userId) => {

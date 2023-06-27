@@ -1,14 +1,11 @@
 <script setup>
-import { computed, ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { useUsersStore } from '@/stores/users.js';
 
-const usersStore = useUsersStore();
-const { toggleStoreEditMode } = usersStore;
+const router = useRouter();
 
-const editMode = computed(() => usersStore.getEditMode);
-
-const switchEditMode = () => {
-  toggleStoreEditMode();
+const goToAddUserPage = (userId) => {
+  router.push('/user/add');
 };
 </script>
 
@@ -16,10 +13,10 @@ const switchEditMode = () => {
   <div>
     <VBtn
       class="mb-6"
-      :active="editMode"
-      @click="switchEditMode"
+      prepend-icon="mdi-account-plus"
+      @click="goToAddUserPage"
     >
-      {{ editMode ? 'Return to view mode' : 'Edit' }}
+      Створити
     </VBtn>
   </div>
 </template>

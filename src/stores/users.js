@@ -44,11 +44,18 @@ export const useUsersStore = defineStore('users', {
       }
       this.originalUsers = copyObject(this.users);
     },
+    addStoreUser(user) {
+      this.users.push(user);
+      this.originalUsers = copyObject(this.users);
+    },
     toggleStoreEditMode() {
       this.editMode = !this.editMode;
     },
     disableStoreEditMode() {
       this.editMode = false;
+    },
+    enableStoreEditMode() {
+      this.editMode = true;
     },
   },
 });

@@ -14,17 +14,33 @@ const save = ref(false);
 const propsList = defineProps({
   id: {
     type: String,
-    required: true,
+    required: false,
+    default: '',
   },
 });
 
 const usersStore = useUsersStore();
 const { getUsers, getEditMode } = storeToRefs(usersStore);
-const { toggleStoreEditMode, updateStoreUser } = usersStore;
+const { toggleStoreEditMode, enableStoreEditMode, updateStoreUser } = usersStore;
 
 const users = computed(() => getUsers.value);
 
-const user = computed(() => getUsers.value.find((user) => user.id === propsList.id));
+const cleanData = reactive({
+  'id': '',
+  'name': '',
+  'email': '',
+  'avatar': 'https://i.pravatar.cc/434?u=',
+  'department': '',
+  'head': '',
+});
+
+const formData = ref(null);
+
+const user = computed(() => getUsers.value.find((user) => user.id === propsList.id) || cleanData);
+
+if (!propsList.id) {
+  enableStoreEditMode();
+}
 
 const userCopy = reactive(copyObject(user.value));
 
@@ -35,7 +51,6 @@ const baseAvatarURL = 'https://i.pravatar.cc/434?u=';
 const makeStringMask = (event) => {
   const newValue = event.target.value;
   const lastDigits = newValue.match(/\d+$/);
-  console.log(lastDigits);
   if (lastDigits) {
     userCopy.avatar = baseAvatarURL + lastDigits[0];
   } else {
@@ -56,11 +71,19 @@ const avatarValidation = computed(() => [
 ]);
 
 const nameValidation = computed(() => [
-  (value) => (!!value || "Поле ім'я є обов'язковим для заповнення"),
+  (value) => (!!value || "Поле Ім'я є обов'язковим для заповнення"),
   (value) => (!/\d/.test(value) || "Ім'я не може містити цифри"),
   (value) => (!/[^A-Za-zА-Яа-яЁёІіЇїҐґ\s]/.test(value) || "Ім'я може містити лише літери та пробіли"),
   (value) => (value.length <= 23 || 'Максимальна кілкість символів - 23'),
   (value) => (!(/^\s+$/.test(value) || /\s\s/.test(value)) || "Ім'я не може складатись лише з пробілів або мати два пробіли підряд"),
+  (value) => (!/[ЫыЁёЪъ]/.test(value) || 'Дякувати Богу, що я не москаль'),
+]);
+
+const departmentValidation = computed(() => [
+  (value) => (!!value || "Поле Департамент є обов'язковим для заповнення"),
+  (value) => (value.length <= 23 || 'Максимальна кілкість символів - 23'),
+  (value) => (!(/^\s+$/.test(value) || /\s\s/.test(value))
+    || 'Департамент не може складатися лише з пробілів або мати два пробіли підряд'),
   (value) => (!/[ЫыЁёЪъ]/.test(value) || 'Дякувати Богу, що я не москаль'),
 ]);
 
@@ -89,17 +112,26 @@ const isFormValid = computed(() => {
   const avatarErrors = avatarValidation.value.filter((rule) => typeof rule(userCopy.avatar) === 'string');
   const nameErrors = nameValidation.value.filter((rule) => typeof rule(userCopy.name) === 'string');
   const emailErrors = emailValidation.value.filter((rule) => typeof rule(userCopy.email) === 'string');
-  const hasValidationErrors = !!(avatarErrors.length || nameErrors.length || emailErrors.length);
+  const departamentErrors = departmentValidation.value.filter((rule) => typeof rule(userCopy.department) === 'string');
+  const hasValidationErrors = !!(avatarErrors.length
+    || nameErrors.length
+    || emailErrors.length
+    || departamentErrors.length);
 
   return (!isFieldChanged || hasValidationErrors);
 });
 
-const updateUser = () => {
+const updateUser = (form) => {
   // тут можна було б звернутися до бекенду і зробити post-запит
-  save.value = true;
-  updateStoreUser(userCopy);
-  toggleStoreEditMode();
-  save.value = false;
+  if (propsList.id) {
+    save.value = true;
+    updateStoreUser(userCopy);
+    toggleStoreEditMode();
+    save.value = false;
+  } else {
+    userCopy.id = Date.now();
+    console.log(userCopy);
+  }
 };
 
 </script>
@@ -126,6 +158,7 @@ const updateUser = () => {
       </VAvatar>
     </VCol>
     <VForm
+      id="form"
       class="px-5"
       @submit.prevent
     >
@@ -160,7 +193,7 @@ const updateUser = () => {
       />
       <VTextField
         v-model="userCopy.department"
-        :rules="nameValidation"
+        :rules="departmentValidation"
         :disabled="!editMode"
         hide-details="auto"
         label="Департамент"
@@ -182,7 +215,7 @@ const updateUser = () => {
         color="primary"
         @click="updateUser"
       >
-        Зберігти
+        {{ propsList.id ? 'Зберігти' : 'Додати' }}
       </VBtn>
     </VForm>
   </VCard>

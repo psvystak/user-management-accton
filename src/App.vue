@@ -5,19 +5,22 @@ import {
 import { useRoute } from 'vue-router';
 import EditModeSwitcher from './components/buttons/EditModeSwitcherButton.vue';
 import GoBackButton from './components/buttons/GoBackButton.vue';
+import AddNewUserButton from './components/buttons/AddNewUserButton.vue';
 
 import { useUsersStore } from './stores/users.js';
 
 const usersStore = useUsersStore();
-const { setStoreUsers, filterStoreUsers } = usersStore;
+const { setStoreUsers } = usersStore;
 
 const route = useRoute();
 const routeName = ref(route.name);
 const isHomePage = ref(false);
+const isAddNewUserPage = ref(false);
 
 watch(() => route.name, (newRouteName) => {
   routeName.value = newRouteName;
   isHomePage.value = newRouteName === 'Home';
+  isAddNewUserPage.value = newRouteName === 'Add';
 });
 
 onMounted(async () => {
@@ -34,9 +37,13 @@ onMounted(async () => {
 
 <template>
   <div>
-    <VSheet class="d-flex justify-md-space-between bg-transparent">
-      <EditModeSwitcher />
+    <VSheet
+      class="d-flex bg-transparent"
+      :class="{'justify-md-end': isAddNewUserPage, 'justify-md-space-between': !isAddNewUserPage}"
+    >
+      <EditModeSwitcher v-if="!isAddNewUserPage" />
       <GoBackButton v-if="!isHomePage" />
+      <AddNewUserButton v-if="isHomePage" />
     </VSheet>
     <router-view />
   </div>

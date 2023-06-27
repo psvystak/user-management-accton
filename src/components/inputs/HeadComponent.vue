@@ -48,6 +48,7 @@ const emitUpdateModelValue = (value) => {
       item-title="name"
       item-value="id"
       label="Начальник"
+      no-data-text="Користувачі не знайдені"
       variant="solo"
       :disabled="disabled"
       @update:modelValue="emitUpdateModelValue"
