@@ -6,6 +6,7 @@ export const useUsersStore = defineStore('users', {
     users: [],
     originalUsers: [],
     editMode: false,
+    usersPerPage: 7,
   }),
 
   getters: {
@@ -15,12 +16,18 @@ export const useUsersStore = defineStore('users', {
     getEditMode(state) {
       return state.editMode;
     },
+    getUsersPerPage(state) {
+      return state.usersPerPage;
+    },
   },
 
   actions: {
     setStoreUsers(users) {
       this.users = users;
       this.originalUsers = copyObject(users);
+    },
+    setStoreUsersPerPage(count) {
+      this.usersPerPage = count;
     },
     filterStoreUsers(searchValue) {
       if (!searchValue) {

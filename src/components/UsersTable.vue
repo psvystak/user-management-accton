@@ -1,5 +1,6 @@
 <script setup>
 import { useRouter } from 'vue-router';
+import { storeToRefs } from 'pinia';
 import { useUsersStore } from '@/stores/users.js';
 
 const router = useRouter();
@@ -13,7 +14,8 @@ const itemsPerPageOptions = [
   { value: -1, title: '$vuetify.dataFooter.itemsPerPageAll' },
 ];
 
-const { removeStoreUser, filterStoreUsers } = usersStore;
+const { removeStoreUser, setStoreUsersPerPage } = usersStore;
+const { getUsersPerPage } = storeToRefs(usersStore);
 
 const propsList = defineProps({
   users: {
@@ -36,6 +38,10 @@ const goToUserPersonalPage = (userId) => {
   router.push(`/user/${userId}`);
 };
 
+const writeCountToStore = (value) => {
+  setStoreUsersPerPage(value);
+};
+
 const removeUser = (userId) => {
   removeStoreUser(userId);
 };
@@ -53,9 +59,14 @@ const removeUser = (userId) => {
       <VDataTable
         :headers="headers"
         :items="users"
-        :items-per-page="7"
+        :items-per-page="getUsersPerPage"
         :items-per-page-options="itemsPerPageOptions"
         class="row-height-90 elevation-5"
+        :footer-props="{
+          'items-per-page-text':'products per page'
+        }"
+        items-per-page-text="Користувачів на сторінці:"
+        @update:items-per-page="writeCountToStore"
       >
         <template #item.avatar="{ item }">
           <VAvatar>
@@ -74,7 +85,7 @@ const removeUser = (userId) => {
             text="Переглянути користувача"
             location="top"
           >
-            <template v-slot:activator="{ props }">
+            <template #activator="{ props }">
               <VBtn
                 v-bind="props"
                 icon="mdi-account-arrow-right"
@@ -88,7 +99,7 @@ const removeUser = (userId) => {
               location="top"
               class="warning-tooltip"
             >
-              <template v-slot:activator="{ props }">
+              <template #activator="{ props }">
                 <VBtn
                   v-bind="props"
                   icon="mdi-account-remove"

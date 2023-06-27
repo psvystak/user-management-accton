@@ -44,6 +44,7 @@ const emitUpdateModelValue = (value) => {
   <div>
     <VAutocomplete
       v-model="selectedUser"
+      :clearable="true"
       :items="usersExcludeCurrent"
       color="blue-grey-lighten-2"
       item-title="name"
