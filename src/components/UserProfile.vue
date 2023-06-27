@@ -1,11 +1,16 @@
 <script setup>
 import {
-  computed, ref, reactive, watch,
+  computed, onMounted, reactive, ref, watch,
 } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useRoute } from 'vue-router';
 import { useUsersStore } from '@/stores/users';
 import { copyObject } from '@/utils/composable/copyObject';
+import {
+  v, rules,
+} from '@/utils/composable/validation';
+import { generateUUID } from '@/utils/composable/idGenerator';
+
 import HeadComponent from '@/components/inputs/HeadComponent.vue';
 
 const route = useRoute();
@@ -21,20 +26,22 @@ const propsList = defineProps({
 
 const usersStore = useUsersStore();
 const { getUsers, getEditMode } = storeToRefs(usersStore);
-const { toggleStoreEditMode, enableStoreEditMode, updateStoreUser } = usersStore;
+const {
+  toggleStoreEditMode, enableStoreEditMode, updateStoreUser, addStoreUser,
+} = usersStore;
 
-const users = computed(() => getUsers.value);
+const baseAvatarURL = 'https://i.pravatar.cc/434?u=';
 
 const cleanData = reactive({
   'id': '',
   'name': '',
   'email': '',
-  'avatar': 'https://i.pravatar.cc/434?u=',
+  'avatar': baseAvatarURL,
   'department': '',
   'head': '',
 });
 
-const formData = ref(null);
+const users = computed(() => getUsers.value);
 
 const user = computed(() => getUsers.value.find((user) => user.id === propsList.id) || cleanData);
 
@@ -42,95 +49,56 @@ if (!propsList.id) {
   enableStoreEditMode();
 }
 
-const userCopy = reactive(copyObject(user.value));
+const userCopy = ref({});
+
+onMounted(() => {
+  userCopy.value = copyObject(user.value);
+});
 
 const editMode = computed(() => getEditMode.value);
 
-const baseAvatarURL = 'https://i.pravatar.cc/434?u=';
+const v$ = v(rules, userCopy);
+console.log(v$);
 
 const makeStringMask = (event) => {
   const newValue = event.target.value;
   const lastDigits = newValue.match(/\d+$/);
   if (lastDigits) {
-    userCopy.avatar = baseAvatarURL + lastDigits[0];
+    userCopy.value.avatar = baseAvatarURL + lastDigits[0];
   } else {
-    userCopy.avatar = 'https://i.pravatar.cc/434?u=';
+    userCopy.value.avatar = baseAvatarURL;
   }
 };
 
 const updateHeadValue = (value) => {
-  userCopy.head = value;
+  userCopy.value.head = value;
 };
-
-const avatarValidation = computed(() => [
-  (value) => (value.length <= 31 || '999 - це максимум'),
-  (value) => {
-    const urlRegex = /^https:\/\/i\.pravatar\.cc\/434\?u=\d{1,4}$/;
-    return urlRegex.test(value) || 'Формат поля https://i.pravatar.cc/434?u=номер';
-  },
-]);
-
-const nameValidation = computed(() => [
-  (value) => (!!value || "Поле Ім'я є обов'язковим для заповнення"),
-  (value) => (!/\d/.test(value) || "Ім'я не може містити цифри"),
-  (value) => (!/[^A-Za-zА-Яа-яЁёІіЇїҐґ\s]/.test(value) || "Ім'я може містити лише літери та пробіли"),
-  (value) => (value.length <= 23 || 'Максимальна кілкість символів - 23'),
-  (value) => (!(/^\s+$/.test(value) || /\s\s/.test(value)) || "Ім'я не може складатись лише з пробілів або мати два пробіли підряд"),
-  (value) => (!/[ЫыЁёЪъ]/.test(value) || 'Дякувати Богу, що я не москаль'),
-]);
-
-const departmentValidation = computed(() => [
-  (value) => (!!value || "Поле Департамент є обов'язковим для заповнення"),
-  (value) => (value.length <= 23 || 'Максимальна кілкість символів - 23'),
-  (value) => (!(/^\s+$/.test(value) || /\s\s/.test(value))
-    || 'Департамент не може складатися лише з пробілів або мати два пробіли підряд'),
-  (value) => (!/[ЫыЁёЪъ]/.test(value) || 'Дякувати Богу, що я не москаль'),
-]);
-
-const emailValidation = computed(() => [
-  (value) => (!!value || 'Поле email є обов\'язковим для заповнення'),
-  (value) => (/.+@.+\..+/.test(value) || 'Невірний формат email'),
-]);
 
 watch(() => editMode.value, (oldValue, newValue) => {
   if (newValue && !save.value) {
-    userCopy.avatar = user.value.avatar;
-    userCopy.name = user.value.name;
-    userCopy.email = user.value.email;
-    userCopy.department = user.value.department;
-    userCopy.head = user.value.head;
+    userCopy.value = copyObject(user.value);
   }
 });
 
-const isFormValid = computed(() => {
-  const isFieldChanged = userCopy.avatar !== user.value.avatar
-    || userCopy.name !== user.value.name
-    || userCopy.email !== user.value.email
-    || userCopy.department !== user.value.department
-    || userCopy.head !== user.value.head;
+const isFormChanged = computed(() => Object.keys(userCopy.value).every((field) => userCopy.value[field] === user.value[field]));
 
-  const avatarErrors = avatarValidation.value.filter((rule) => typeof rule(userCopy.avatar) === 'string');
-  const nameErrors = nameValidation.value.filter((rule) => typeof rule(userCopy.name) === 'string');
-  const emailErrors = emailValidation.value.filter((rule) => typeof rule(userCopy.email) === 'string');
-  const departamentErrors = departmentValidation.value.filter((rule) => typeof rule(userCopy.department) === 'string');
-  const hasValidationErrors = !!(avatarErrors.length
-    || nameErrors.length
-    || emailErrors.length
-    || departamentErrors.length);
-
-  return (!isFieldChanged || hasValidationErrors);
-});
-
-const updateUser = (form) => {
+const updateUser = async () => {
+  v$.value.$validate();
+  if (v$.value.$error) {
+    return;
+  }
   // тут можна було б звернутися до бекенду і зробити post-запит
   if (propsList.id) {
     save.value = true;
-    updateStoreUser(userCopy);
+    updateStoreUser(userCopy.value);
     toggleStoreEditMode();
     save.value = false;
   } else {
-    userCopy.id = Date.now();
-    console.log(userCopy);
+    userCopy.value.id = generateUUID(users.value);
+    addStoreUser(userCopy.value);
+    alert(`User ${userCopy.value.name} was added`);
+    userCopy.value = copyObject(user.value);
+    v$.value.$reset();
   }
 };
 
@@ -153,67 +121,81 @@ const updateUser = (form) => {
       >
         <VImg
           :src="userCopy.avatar"
+          alt="Аватар"
           height="434"
         />
       </VAvatar>
     </VCol>
     <VForm
       id="form"
+      ref="formData"
       class="px-5"
-      @submit.prevent
+      @submit.prevent="updateUser"
     >
       <VTextField
         v-model="userCopy.avatar"
         :disabled="!editMode"
+        :error="v$.avatar.$invalid && v$.avatar.$dirty"
+        :error-messages="v$.avatar.$errors.map(e => e.$message)"
+        class="mb-4"
         hide-details="auto"
         label="Аватар"
         variant="solo"
-        class="mb-4"
-        :rules="avatarValidation"
-        @keyup="makeStringMask"
         @keydown="makeStringMask"
+        @keyup="makeStringMask"
+        @input="v$.avatar.$touch"
+        @blur="v$.avatar.$touch"
       />
       <VTextField
         v-model="userCopy.name"
         :disabled="!editMode"
+        :error="v$.name.$invalid && v$.name.$dirty"
+        :error-messages="v$.name.$errors.map(e => e.$message)"
+        class="mb-4"
         hide-details="auto"
         label="Ім'я"
         variant="solo"
-        class="mb-4"
-        :rules="nameValidation"
+        @input="v$.name.$touch"
+        @blur="v$.name.$touch"
       />
       <VTextField
         v-model="userCopy.email"
         :disabled="!editMode"
+        :error="v$.email.$invalid && v$.email.$dirty"
+        :error-messages="v$.email.$errors.map(e => e.$message)"
+        class="mb-4"
         hide-details="auto"
         label="Емейл адреса"
         variant="solo"
-        class="mb-4"
-        :rules="emailValidation"
+        @input="v$.email.$touch"
+        @blur="v$.email.$touch"
       />
       <VTextField
         v-model="userCopy.department"
-        :rules="departmentValidation"
         :disabled="!editMode"
+        :error="v$.department.$invalid && v$.department.$dirty"
+        :error-messages="v$.department.$errors.map(e => e.$message)"
+        class="mb-4"
         hide-details="auto"
         label="Департамент"
         variant="solo"
-        class="mb-4"
+        @input="v$.department.$touch"
+        @blur="v$.department.$touch"
       />
       <HeadComponent
-        :users="users"
         :current-user-head="userCopy.head"
         :current-user-id="userCopy.id"
         :disabled="!editMode"
+        :users="users"
         @update:model-value="updateHeadValue"
       />
       <VBtn
         v-if="editMode"
-        type="submit"
-        :disabled="isFormValid"
+        :disabled="isFormChanged"
         class="mb-4"
         color="primary"
-        @click="updateUser"
+        form="form"
+        type="submit"
       >
         {{ propsList.id ? 'Зберігти' : 'Додати' }}
       </VBtn>
@@ -225,10 +207,15 @@ const updateUser = (form) => {
 :deep(.v-input) {
   .v-field {
     border-radius: 0;
+
     &--disabled {
       opacity: 1;
       box-shadow: none;
     }
   }
+}
+
+:deep(.v-img) {
+  height: 434px;
 }
 </style>

@@ -4,6 +4,7 @@ import { useUsersStore } from '@/stores/users.js';
 
 const router = useRouter();
 const usersStore = useUsersStore();
+
 const itemsPerPageOptions = [
   { value: 7, title: '7' },
   { value: 10, title: '10' },

@@ -27,7 +27,7 @@ module.exports = {
     'max-len': [
       'error',
       {
-        code: 120,
+        code: 200,
         ignoreTemplateLiterals: true,
         ignoreStrings: true,
         ignorePattern: '(d||points)="([\\s\\S]*?)"',

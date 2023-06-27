@@ -1,5 +1,5 @@
 <script setup>
-import { ref, defineEmits } from 'vue';
+import { ref, watch } from 'vue';
 
 const emit = defineEmits(['update:modelValue']); // Define emits
 
@@ -24,11 +24,12 @@ const propsList = defineProps({
   },
 });
 
-const selectedUser = ref('');
 const usersExcludeCurrent = ref([]);
+const selectedUser = ref(null);
 
-selectedUser.value = propsList.users.find((user) => user.id === propsList.currentUserHead) || null;
-
+watch(() => propsList.currentUserHead, (newValue) => {
+  selectedUser.value = propsList.users.find((user) => user.id === newValue) || null;
+});
 // фільтрація для того, щоб юзер не міг бути сам собі начальником,
 // і щоб його начальником не міг бути той, хто у нього вже є у підлеглих
 usersExcludeCurrent.value = propsList.users.filter((user) => user.id !== propsList.currentUserId
@@ -51,7 +52,7 @@ const emitUpdateModelValue = (value) => {
       no-data-text="Користувачі не знайдені"
       variant="solo"
       :disabled="disabled"
-      @update:modelValue="emitUpdateModelValue"
+      @update:model-value="emitUpdateModelValue"
     >
       <template v-slot:chip="{ props, item }">
         <VChip
