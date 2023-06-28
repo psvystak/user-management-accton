@@ -5,6 +5,4 @@ import UserProfile from '@/components/UserProfile.vue';
   <UserProfile />
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

@@ -6,9 +6,7 @@ import { storeToRefs } from 'pinia';
 import { useRoute } from 'vue-router';
 import { useUsersStore } from '@/stores/users';
 import { copyObject } from '@/utils/composable/copyObject';
-import {
-  v, rules,
-} from '@/utils/composable/validation';
+import { v, rules } from '@/utils/composable/validation';
 import { generateUUID } from '@/utils/composable/idGenerator';
 
 import HeadComponent from '@/components/inputs/HeadComponent.vue';
@@ -33,12 +31,12 @@ const {
 const baseAvatarURL = 'https://i.pravatar.cc/434?u=';
 
 const cleanData = reactive({
-  'id': '',
-  'name': '',
-  'email': '',
-  'avatar': baseAvatarURL,
-  'department': '',
-  'head': '',
+  id: '',
+  name: '',
+  email: '',
+  avatar: baseAvatarURL,
+  department: '',
+  head: '',
 });
 
 const users = computed(() => getUsers.value);
@@ -52,7 +50,7 @@ if (!propsList.id) {
 const userCopy = ref({});
 
 onMounted(() => {
-  userCopy.value = getUsers.value.find((user) => user.id === propsList.id) || cleanData;
+  userCopy.value = copyObject(user.value);
 });
 
 const editMode = computed(() => getEditMode.value);
@@ -73,11 +71,14 @@ const updateHeadValue = (value) => {
   userCopy.value.head = value;
 };
 
-watch(() => editMode.value, (oldValue, newValue) => {
-  if (newValue && !save.value) {
-    userCopy.value = copyObject(user.value);
-  }
-});
+watch(
+  () => editMode.value,
+  (oldValue, newValue) => {
+    if (newValue && !save.value) {
+      userCopy.value = copyObject(user.value);
+    }
+  },
+);
 
 const isFormChanged = computed(() => Object.keys(userCopy.value).every((field) => userCopy.value[field] === user.value[field]));
 
@@ -101,7 +102,6 @@ const updateUser = async () => {
     v$.value.$reset();
   }
 };
-
 </script>
 
 <template>
@@ -117,7 +117,7 @@ const updateUser = async () => {
     <VCol>
       <VAvatar
         size="100"
-        style="position:absolute; top: 130px; border: 2px solid white;"
+        style="position: absolute; top: 130px; border: 2px solid white"
       >
         <VImg
           :src="userCopy.avatar"
@@ -136,8 +136,8 @@ const updateUser = async () => {
         v-model="userCopy.avatar"
         :disabled="!editMode"
         :error="v$.avatar.$invalid && v$.avatar.$dirty"
-        :error-messages="v$.avatar.$errors.map(e => e.$message)"
-        class="mb-4"
+        :error-messages="v$.avatar.$errors.map((e) => e.$message)"
+        class="mb-1"
         hide-details="auto"
         label="Аватар"
         variant="solo"
@@ -150,8 +150,8 @@ const updateUser = async () => {
         v-model="userCopy.name"
         :disabled="!editMode"
         :error="v$.name.$invalid && v$.name.$dirty"
-        :error-messages="v$.name.$errors.map(e => e.$message)"
-        class="mb-4"
+        :error-messages="v$.name.$errors.map((e) => e.$message)"
+        class="mb-1"
         hide-details="auto"
         label="Ім'я"
         variant="solo"
@@ -162,8 +162,8 @@ const updateUser = async () => {
         v-model="userCopy.email"
         :disabled="!editMode"
         :error="v$.email.$invalid && v$.email.$dirty"
-        :error-messages="v$.email.$errors.map(e => e.$message)"
-        class="mb-4"
+        :error-messages="v$.email.$errors.map((e) => e.$message)"
+        class="mb-1"
         hide-details="auto"
         label="Емейл адреса"
         variant="solo"
@@ -174,8 +174,8 @@ const updateUser = async () => {
         v-model="userCopy.department"
         :disabled="!editMode"
         :error="v$.department.$invalid && v$.department.$dirty"
-        :error-messages="v$.department.$errors.map(e => e.$message)"
-        class="mb-4"
+        :error-messages="v$.department.$errors.map((e) => e.$message)"
+        class="mb-1"
         hide-details="auto"
         label="Департамент"
         variant="solo"
@@ -192,9 +192,9 @@ const updateUser = async () => {
       <VBtn
         v-if="editMode"
         :disabled="isFormChanged"
-        class="mb-4"
         color="primary"
         form="form"
+        class="mb-4"
         type="submit"
       >
         {{ propsList.id ? 'Зберігти' : 'Додати' }}
@@ -203,8 +203,9 @@ const updateUser = async () => {
   </VCard>
 </template>
 
-<style lang='scss' scoped>
+<style lang="scss" scoped>
 :deep(.v-input) {
+  height: 86px;
   .v-field {
     border-radius: 0;
 
@@ -212,6 +213,11 @@ const updateUser = async () => {
       opacity: 1;
       box-shadow: none;
     }
+  }
+  .v-input__details {
+    padding: 4px 0 0 0;
+    display: flex;
+    align-items: center;
   }
 }
 

@@ -33,8 +33,10 @@ export const useUsersStore = defineStore('users', {
       if (!searchValue) {
         this.users = copyObject(this.originalUsers);
       } else {
-        this.users = this.originalUsers.filter((user) => user.name.toLowerCase().includes(searchValue.toLowerCase())
-          || user.email.toLowerCase().includes(searchValue.toLowerCase()));
+        this.users = this.originalUsers.filter(
+          (user) => user.name.toLowerCase().includes(searchValue.toLowerCase())
+            || user.email.toLowerCase().includes(searchValue.toLowerCase()),
+        );
       }
     },
     removeStoreUser(id) {

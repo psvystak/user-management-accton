@@ -32,7 +32,8 @@ const propsList = defineProps({
   },
 });
 
-const findHeadEmailOfUser = (user) => propsList.users.find((currentUser) => currentUser.id === user?.head)?.email || 'Начальник не призначений';
+const findHeadEmailOfUser = (user) => propsList.users.find((currentUser) => currentUser.id === user?.head)?.email
+  || 'Начальник не призначений';
 
 const goToUserPersonalPage = (userId) => {
   router.push(`/user/${userId}`);
@@ -45,7 +46,6 @@ const writeCountToStore = (value) => {
 const removeUser = (userId) => {
   removeStoreUser(userId);
 };
-
 </script>
 
 <template>
@@ -63,7 +63,7 @@ const removeUser = (userId) => {
         :items-per-page-options="itemsPerPageOptions"
         class="row-height-90 elevation-5"
         :footer-props="{
-          'items-per-page-text':'products per page'
+          'items-per-page-text': 'products per page'
         }"
         items-per-page-text="Користувачів на сторінці:"
         @update:items-per-page="writeCountToStore"
@@ -116,7 +116,7 @@ const removeUser = (userId) => {
   </div>
 </template>
 
-<style lang='scss' scoped>
+<style lang="scss" scoped>
 :deep(.v-data-table) tr {
   height: 80px !important;
 }

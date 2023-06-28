@@ -30,18 +30,25 @@ const selectedUser = ref(null);
 
 const { currentUserId, users, currentUserHead } = toRefs(propsList);
 
-watch(() => propsList.currentUserHead, (newValue) => {
-  selectedUser.value = propsList.users.find((user) => user.id === newValue) || null;
-});
+watch(
+  () => propsList.currentUserHead,
+  (newValue) => {
+    selectedUser.value = propsList.users.find((user) => user.id === newValue) || null;
+  },
+);
 
 usersExcludeCurrent.value = users.value;
 
-watch(() => currentUserId.value, (newValue) => {
-// фільтрація для того, щоб юзер не міг бути сам собі начальником,
-// і щоб його начальником не міг бути той, хто у нього вже є у підлеглих
-  usersExcludeCurrent.value = propsList.users.filter((user) => user.id !== newValue
-      && user.head !== newValue);
-});
+watch(
+  () => currentUserId.value,
+  (newValue) => {
+    // фільтрація для того, щоб юзер не міг бути сам собі начальником,
+    // і щоб його начальником не міг бути той, хто у нього вже є у підлеглих
+    usersExcludeCurrent.value = propsList.users.filter(
+      (user) => user.id !== newValue && user.head !== newValue,
+    );
+  },
+);
 
 const emitUpdateModelValue = (value) => {
   emit('update:modelValue', value);
@@ -81,7 +88,7 @@ const emitUpdateModelValue = (value) => {
   </div>
 </template>
 
-<style lang='scss' scoped>
+<style lang="scss" scoped>
 :deep(.v-input--disabled) .v-field__append-inner {
   display: none;
 }
