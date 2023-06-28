@@ -61,7 +61,7 @@ const emitUpdateModelValue = (value) => {
       no-data-text="Користувачі не знайдені"
       variant="solo"
       :disabled="disabled"
-      @update:model-value="emitUpdateModelValue"
+      @update:modelValue="emitUpdateModelValue"
     >
       <template v-slot:chip="{ props, item }">
         <VChip
@@ -71,7 +71,7 @@ const emitUpdateModelValue = (value) => {
         />
       </template>
       <template v-slot:item="{ props, item }">
-        <v-list-item
+        <VListItem
           v-bind="props"
           :prepend-avatar="item?.raw?.avatar"
           :title="item?.raw?.name"

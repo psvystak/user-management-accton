@@ -187,7 +187,7 @@ const updateUser = async () => {
         :current-user-id="userCopy.id"
         :disabled="!editMode"
         :users="users"
-        @update:model-value="updateHeadValue"
+        @update:modelValue="updateHeadValue"
       />
       <VBtn
         v-if="editMode"
