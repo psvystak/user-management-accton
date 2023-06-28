@@ -16,6 +16,12 @@ npm run build
 npm run dev
 ```
 
+### Run tests
+
+```sh
+npm run test
+```
+
 ### Go to:
 ### http://localhost:3000 if prod build
 ### or http://localhost:5173/ if dev build
