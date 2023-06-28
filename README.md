@@ -4,18 +4,18 @@
 npm install
 ```
 
-### Compile and Minify for Production
+### Compile and Minify for Production with API
 
 ```sh
 npm run build
 ```
 
-### Run the server with api
+### Run the server with API
 
 ```sh
-npm run start
+npm run dev
 ```
 
-### Go to http://localhost:3000
-
-note: you can also click on the final window with receipt to reset form and starts from the beginning
+### Go to:
+### http://localhost:3000 if prod build
+### or http://localhost:5173/ if dev build
