@@ -1,8 +1,9 @@
 <script setup>
-import { ref, watch } from 'vue';
+import {
+  onMounted, ref, watch, toRefs,
+} from 'vue';
 
-const emit = defineEmits(['update:modelValue']); // Define emits
-
+const emit = defineEmits(['update:modelValue']);
 const propsList = defineProps({
   users: {
     type: Array,
@@ -27,13 +28,20 @@ const propsList = defineProps({
 const usersExcludeCurrent = ref([]);
 const selectedUser = ref(null);
 
+const { currentUserId, users, currentUserHead } = toRefs(propsList);
+
 watch(() => propsList.currentUserHead, (newValue) => {
   selectedUser.value = propsList.users.find((user) => user.id === newValue) || null;
 });
+
+usersExcludeCurrent.value = users.value;
+
+watch(() => currentUserId.value, (newValue) => {
 // фільтрація для того, щоб юзер не міг бути сам собі начальником,
 // і щоб його начальником не міг бути той, хто у нього вже є у підлеглих
-usersExcludeCurrent.value = propsList.users.filter((user) => user.id !== propsList.currentUserId
-  && user.head !== propsList.currentUserId);
+  usersExcludeCurrent.value = propsList.users.filter((user) => user.id !== newValue
+      && user.head !== newValue);
+});
 
 const emitUpdateModelValue = (value) => {
   emit('update:modelValue', value);

@@ -10,8 +10,5 @@ export const generateUUID = (users) => {
     uuid += hexDigits[Math.floor(Math.random() * 16)];
   }
 
-  if (arrayOfIds.includes(uuid)) {
-    return generateUUID(users);
-  }
   return uuid;
 };

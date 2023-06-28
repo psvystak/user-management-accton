@@ -49,7 +49,7 @@ const removeUser = (userId) => {
 </script>
 
 <template>
-  <div>
+  <div class="unit-test">
     <template v-if="users.length === 0">
       <p class="no-users">
         Пусто
@@ -87,6 +87,7 @@ const removeUser = (userId) => {
           >
             <template #activator="{ props }">
               <VBtn
+                class="go-to-personal-page"
                 v-bind="props"
                 icon="mdi-account-arrow-right"
                 @click="goToUserPersonalPage(item.value)"
@@ -101,6 +102,7 @@ const removeUser = (userId) => {
             >
               <template #activator="{ props }">
                 <VBtn
+                  class="account-remove"
                   v-bind="props"
                   icon="mdi-account-remove"
                   @click="removeUser(item.value)"

@@ -8,6 +8,7 @@
     "dev:frontend": "vite",
     "dev:backend": "node server/server.js",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore",
+    "test": "vitest --coverage",
     "preview": "vite preview",
     "format": "prettier --write src/"
   },
@@ -22,8 +23,10 @@
     "vuetify": "^3.3.3"
   },
   "devDependencies": {
+    "@pinia/testing": "^0.1.2",
     "@rushstack/eslint-patch": "^1.2.0",
     "@vitejs/plugin-vue": "^4.2.3",
+    "@vitest/coverage-v8": "^0.32.2",
     "@vue/eslint-config-airbnb": "^7.0.0",
     "@vue/eslint-config-prettier": "^7.1.0",
     "@vue/test-utils": "^2.3.2",

@@ -9,9 +9,7 @@ const usersStore = useUsersStore();
 
 const { getUsers, getEditMode } = storeToRefs(usersStore);
 const { filterStoreUsers } = usersStore;
-
 const users = computed(() => getUsers.value);
-
 const editMode = computed(() => getEditMode.value);
 
 const headers = [

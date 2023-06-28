@@ -52,13 +52,12 @@ if (!propsList.id) {
 const userCopy = ref({});
 
 onMounted(() => {
-  userCopy.value = copyObject(user.value);
+  userCopy.value = getUsers.value.find((user) => user.id === propsList.id) || cleanData;
 });
 
 const editMode = computed(() => getEditMode.value);
 
 const v$ = v(rules, userCopy);
-console.log(v$);
 
 const makeStringMask = (event) => {
   const newValue = event.target.value;
@@ -96,6 +95,7 @@ const updateUser = async () => {
   } else {
     userCopy.value.id = generateUUID(users.value);
     addStoreUser(userCopy.value);
+    // eslint-disable-next-line no-alert
     alert(`User ${userCopy.value.name} was added`);
     userCopy.value = copyObject(user.value);
     v$.value.$reset();
