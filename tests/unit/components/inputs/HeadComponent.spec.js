@@ -107,7 +107,6 @@ describe('HeadComponent', () => {
   it('disables the autocomplete when disabled prop is true', () => {
     const autocomplete = wrapper.findComponent({ name: 'VAutocomplete' });
 
-    // Assert that the autocomplete is disabled
     expect(autocomplete.props('disabled')).toBe(true);
   });
 
