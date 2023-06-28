@@ -42,11 +42,9 @@ describe('SearchBar', () => {
   });
 
   it('updates searchValue when input value changes', async () => {
-    // Find the input element and set a value
     const inputElement = wrapper.find('input');
     await inputElement.setValue('example value');
 
-    // Expect the searchValue to be updated accordingly
     expect(wrapper.vm.searchValue).toBe('example value');
   });
 });
